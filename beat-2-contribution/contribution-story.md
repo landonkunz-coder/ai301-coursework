@@ -1,4 +1,4 @@
-# Contribution: [Issue Title]
+# Contribution: vault_read module shows an error when disabling certificate validation
 
 Path: `beat-2-contribution/contribution-story.md`
 
@@ -10,7 +10,7 @@ files and no evidence uploads are part of Assignment 5.
 **Contribution Number:** [1]
 **Student:** Landon Kunz
 **GitHub Username:** landonkunz-coder
-**Issue:** [GitHub issue link]
+**Issue:** https://github.com/ansible-collections/community.hashi_vault/issues/456
 **Pull Request:** [GitHub PR link, once opened]
 
 One repository, built across units 5 to 8, telling the whole story of your real
@@ -78,24 +78,18 @@ drafted, what you did with the draft.]
 
 ## Why I Chose This Issue
 
-[1-2 paragraphs in your own words: how you searched, what your scan
-surfaced, what your scout's verdict said, why this issue fits your
-profile, and what you hope to learn. If your scout's verdict on it
-was reject and you chose it anyway, say so here and say why; choosing
-against your own tool silently is what loses points. Close with an
-honest read of the tool itself: where the scout fell short on a real
-wild search and what you changed or would change, or what convinced
-you it held up. **Record the link to your claim comment in this section too.**
-Not claimed yet? Write `claim pending` and today's date where the link goes,
-and add the link the moment your claim lands.]
+I went into claim day with nothing usable from Unit 5. My scout had accepted LPC #296, but when I imported the issue's JSON into the live generator it already worked, because two merged PRs had fixed it. WrenAI #1127 needed Docker and Ollama, and nanocoder #1745 had an open PR. So I searched again: the AI301 Issue Selection site filtered to Python bugs, then free GitHub searches Claude ran for me, first for `good first issue` + `bug` and then for `help wanted` + `bug`. The `good first issue` route kept hitting the same wall: beets and Qiskit ban AI on their good first issues, BookWyrm doesn't accept AI-generated code at all, and I use Claude and disclose it. beets #5491 was my first grade, and my scout rejected it twice over: someone had asked for it five days earlier, and beets' AI policy bans AI on good first issues. The `help wanted` search turned up ansible-collections/community.hashi_vault #456: `vault_read` with cert auth and `validate_certs: false` fails with `cacert must be True, a file_path, or valid CA Certificate.` even though a cacert is set. Nobody had asked for it in two years, there were no linked PRs, and Ansible's community AI policy allows AI with disclosure. This one was looking promising.
+
+My scout rejected #456 too, and I chose it anyway. The only required check it failed was `commits-alive`: the newest commit on main was 102 days old against my 90-day rule. I read that as a slow repo, not a dead one, because a collaborator answered issue #502 the same day in August and the last release was within the year. Every other required check passed, and I checked the two open PRs near this code (#504 and #505) and neither one fixes it. This is why I overrode my scout. It fits my profile: Python, a dev tool, one bug in an auth method with a repro I can run myself. It's also closer to real IT work than anything else I looked at, since Ansible and Vault are tools teams use to manage servers and secrets. I want to learn how a real collection is tested and reviewed, and how to work a fix through maintainers who answer slowly, since it seems like this might be a recurring problem I might face. I claimed it here: https://github.com/ansible-collections/community.hashi_vault/issues/456#issuecomment-6407917750
+
+My honest read of the scout: it was right about the things that would have hurt me (a fresh claim on beets, an AI ban, an open PR on nanocoder), but it's not something I can trust blindly. I need to check it myself and find something that fits what I want to do. It got the issue age wrong on beets (it said 356 days when it was about 720). It still counts a two-year-old "can I work on this?" as stale, while the course says any ask means taken. It looked for CONTRIBUTING.md and missed the contributor guide in `docs/`. It can't see PRs that touch the same code without linking the issue, and it still accepts an issue that merged PRs already fixed. Re-grading my three Unit 5 picks with the patched rubric gave the same three verdicts, so the scope patch didn't change anything on those, only added difficulty notes. I may need to adjust my scout.
 
 **Toolkit**
 
-- Tool: issue-scout (your scout: your search strategy, your rubric),
-  and how you used it
-- What it produced: [the scan and its verdict on this issue, described]
-- Difficulties: [where it fell short, or "none met" if none did]
-- What changed: [what you patched or would update, or "nothing"]
+- Tool: issue-scout in direct mode (`issue-scout: grade <url>`), with my rubric after this unit's scope patch: `single-bounded-change` replaced by `scope-feasible` plus a difficulty note, my old fail conditions (3) to (5) kept as named cases, and `spec-settled` narrowed so an open "how" question makes an issue ambitious instead of failing.
+- What it produced: five grades this unit. beets #5491 reject (`unclaimed`: claim on Oct 16; `ai-policy-allows`: AI banned on good first issues). hashi_vault #456 reject on `commits-alive` only (last commit Jul 11, 102 days). Re-grades of my Unit 5 picks: LPC #296 accept (straightforward), WrenAI #1127 accept (ambitious), nanocoder #1745 reject (open PR #1756), the same verdicts as Unit 5.
+- Difficulties: a date slip on beets `fresh-issue` (356 days instead of about 720); `unclaimed` uses a 90-day stale rule that is looser than the course's "any ask means taken"; `ai-policy-allows` passed #456 for the right answer but the wrong reason, since it missed both the contributor guide in `docs/docsite/rst/` and Ansible's org-wide AI policy; it can't see unlinked PRs touching the same code (#504, #505); it still accepts issues already fixed by merged PRs (#296). I haven't regression-checked the scope patch against the Unit 1 eval set.
+- What changed: I applied the scope patch with a dated line in `scan-notes.md`, and I overrode the scout's reject on #456 with the reasons above instead of following it. Patches I'd make next: count any "can I work on this" comment as a claim, look in `docs/` and org-level policies before grading the AI check, and treat a merged PR that references the issue as "check it still reproduces" instead of a pass.
 
 ---
 
