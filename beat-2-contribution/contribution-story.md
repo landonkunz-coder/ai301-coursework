@@ -130,31 +130,58 @@ and add the link the moment your claim lands.]
 
 **Environment Setup**
 
-[What a stranger would need to stand this up: your operating system,
-the relevant versions (language, runtime, package manager, the project
-itself), and how you set the project up. Then the challenges you faced
-and how you solved them, or that none came up.]
+- macOS 26.3.1 (arm64)
+- community.hashi_vault 7.2.0: my fork `landonkunz-coder/community.hashi_vault`, `main` at upstream commit `eb163dd`, cloned to `~/ai301-hashi-vault/ansible_collections/community/hashi_vault` (ansible-test and Ansible's collection loader need that `ansible_collections/<namespace>/<name>` path, per the collection's contributor guide)
+- Python 3.12.14 in a venv at `~/ai301-hashi-vault/.venv` (created with `mise exec python@3.12 -- python -m venv .venv`), ansible-core 2.21.5, hvac 2.4.0 (`.venv/bin/pip install ansible-core hvac`)
+- `ANSIBLE_COLLECTIONS_PATH=~/ai301-hashi-vault` so Ansible loads my clone, not an installed copy
+
+Challenges and how I handled them:
+- My system `python3` is 3.9.6, too old for current ansible-core, so I used Python 3.12 through mise, the same as my Path Review setup.
+- I don't have Docker, and the collection's integration tests run Vault in docker-compose. Reading the code first showed that hvac raises this error before it sends any request, so I pointed the task at `https://127.0.0.1:8200`, where nothing is running. If the module had contacted Vault, I would have seen a connection error instead, so the empty port is part of the test, not a shortcut.
+- My first fork-and-clone command didn't run (no fork, no folder), so I re-ran it and checked the fork and remotes before going on.
+- Ansible 2.21 prints only the error message, not the exception class. I confirmed which exception it is by searching hvac's source: that message appears once, in `hvac/api/auth_methods/cert.py` line 293, inside `raise self.CertificateAuthError(...)`.
 
 **Steps to Reproduce**
 
-1. [Step 1]
-2. [Step 2]
-3. [Observed result]
+1. Make throwaway certs (the error doesn't depend on their contents):
+   `openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=repro-ca" -keyout certs/ca.key -out certs/ca.crt`, and the same with `/CN=repro-client` for `certs/client.key` and `certs/client.crt`.
+2. Save the issue's task as `repro-456.yml`: `community.hashi_vault.vault_read` with `url: https://127.0.0.1:8200`, `path: secret/test`, `auth_method: cert`, `cacert: certs/ca.crt`, `cert_auth_private_key: certs/client.key`, `cert_auth_public_key: certs/client.crt`, and `validate_certs` from a variable (default `false`).
+3. Run `ANSIBLE_COLLECTIONS_PATH=~/ai301-hashi-vault ansible-playbook repro-456.yml` (bug run, `validate_certs: false`).
+4. Run it again with `-e validate=true` (control run, same task and files).
+5. Observed result: the bug run fails with `cacert must be True, a file_path, or valid CA Certificate.` before contacting Vault. The control run gets past that check and fails only with `Connection refused` on `127.0.0.1:8200`.
 
 **Reproduction Evidence**
 
-- **Commit showing reproduction:** [link to commit in your fork]
-- **Screenshots/logs:** [if applicable]
-- **My findings:** [what you discovered during reproduction; an
-  honest, evidenced cannot-reproduce that led you to re-pick or ask
-  the maintainer belongs here and costs you nothing]
+- **Commit showing reproduction:** none
+- **Screenshots/logs:**
+
+  Bug run (`validate_certs: false`):
+  ```
+  TASK [Issue #456 task (validate_certs: False)] *********************************
+  [ERROR]: Task failed: Module failed: cacert must be True, a file_path, or valid CA Certificate.
+  fatal: [localhost]: FAILED! => {"changed": false, "msg": "Task failed: Module failed: cacert must be True, a file_path, or valid CA Certificate."}
+  ```
+
+  Control run (`validate_certs: true`):
+  ```
+  TASK [Issue #456 task (validate_certs: true)] **********************************
+  [ERROR]: Task failed: Module failed: HTTPSConnectionPool(host='127.0.0.1', port=8200): Max retries exceeded with url: /v1/auth/cert/login (Caused by NewConnectionError("HTTPSConnection(host='127.0.0.1', port=8200): Failed to establish a new connection: [Errno 61] Connection refused"))
+  ```
+
+  `-vvv` shows it ran my clone of main:
+  ```
+  ansible collection location = /Users/landonkunz/ai301-hashi-vault
+  Using module file /Users/landonkunz/ai301-hashi-vault/ansible_collections/community/hashi_vault/plugins/modules/vault_read.py
+  ```
+
+- **My findings:** The bug from October 2024 (collection 6.2.0) still happens on 7.2.0. `validate_certs: false` is the trigger: with it on, the same task gets past the check. The failure is inside hvac's cert login, before any request, which is why I could reproduce it without a Vault server. I posted a short note with this on the issue and asked the maintainers which behavior they want before I plan a fix: [note link](https://github.com/ansible-collections/community.hashi_vault/issues/456#issuecomment-6408134392). The full report stays here and in my PR, per the instructions form the course.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: repro-check (my Unit 2 skill, with the staff's real-repo scope swapped in this unit), plus the voice guard checking both posts.
+- What it produced: a claim-only grade (accept: `claim-specific` and `conventions-respected` pass, report checks not yet applicable) with two voice notes, then a claim plus repro grade (accept, 6 of 6). The guard passed the claim and the note before they posted.
+- Difficulties: it told me to post the repro report on the thread next, which the course says not to do. `conventions-respected` passed because it found "no CONTRIBUTING.md", but it missed the collection's contributor guide in `docs/docsite/rst/` and Ansible's community AI policy, the same miss my scout made. It also flagged my hvac line number as unverified, which was fair until I checked it. My CodePath credits ran out on Oct 25, so both grades and the guard checks ran on my personal Claude account.
+- What changed: I took both claim notes (named `CertificateAuthError`, changed "the report" to "the issue description"). I kept the report off the thread and posted only a short note with one question. I cut my code-reading paragraph from the repro, because my voice guide says not to post a root cause I haven't shown output for; it moves to Understanding the Issue. Next patch candidate for the evidence guide: look in `docs/` for a contributor guide and check org-level policies before passing conventions.
 
 ---
 
