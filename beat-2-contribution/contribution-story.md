@@ -58,11 +58,9 @@ one in the week it belongs to.
 
 I installed the scout over my Unit 1 skill, rewrote my fit profile, and built a search strategy of four `gh search issues` queries and eight free ranking rules (Claude drafted most of the queries and rules from my profile; I test-ran each query by hand and changed what didn’t hold up). Those hand runs showed things I didn't want to see like a `Stellar Wave` program label filling the top results and single owners bulk-filing issues across many repos, so I added `--sort updated`, label exclusions, and a one-result-per-owner rule before paying for a scan. The first scan (308 unique issues, 238 after the drop rules) accepted all five of its top picks, including aws-powertools #8584, which bundles six unrelated bugs, so I added a fifth fail condition to `single-bounded-change` (re-checked against Unit 1 eval issues 04, 06 and 14: 3/3 agreed) and a rule dropping issues less than 7 days old. Grading my three Issue Selection picks then correctly rejected nanocoder #1745 as claimed, but still accepted LPC #296 even though two PRs referencing it are already merged, a gap I haven’t patched yet.
 
-**Unit 6: [one line on the tool work]**
+**Unit 6: Installed the voice guard outside my global settings, then used it and a 37-line repo memory file on my real claim**
 
-[2-4 sentences: the voice-guard, the repo-memory file. What broke or
-fell short, and what changed because of it. "Nothing broke" counts when
-it is true - say how you know.]
+I added four upstream rules to my voice guide (Claude drafted them and I edited them and approved them) and installed the voice guard, but I put the hook in a project `settings.local.json` in my notes folder instead of `~/.claude/settings.json`, a deviation from INSTALL.md step 4 that leaves my global settings untouched and means the guard only fires when I start Claude Code from that folder. That fell short on claim day because the posting steps run from the Unit 6 materials folder, so I copied the hook there, kept it out of git with `.git/info/exclude`, and re-ran the wiring test; my guard log shows that stop and then a pass on my claim and on my repro note before each one posted (Oct 25), though anything I post from the browser or a plain terminal still skips it. For repo memory I ran one scoped orientation over `plugins/module_utils/` and its unit tests (five read-only tool calls), and Claude distilled it, my contributor-guide notes, and a unit-test command I ran myself (1025 passed) into a 37-line `CLAUDE.local.md` that stays out of git. My CodePath credits ran out on Oct 25, so the guard checks, the orientation run, and my repro-check grades that day ran on my personal Claude account.
 
 **Unit 7: [one line on the tool work]**
 
