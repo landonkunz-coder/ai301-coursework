@@ -11,7 +11,7 @@ files and no evidence uploads are part of Assignment 5.
 **Student:** Landon Kunz
 **GitHub Username:** landonkunz-coder
 **Issue:** https://github.com/ansible-collections/community.hashi_vault/issues/456
-**Pull Request:** [GitHub PR link, once opened]
+**Pull Request:** https://github.com/ansible-collections/community.hashi_vault/pull/510
 
 One repository, built across units 5 to 8, telling the whole story of your real
 contribution. Fill it as you work, not at the end — the sections below ask for evidence that
@@ -62,10 +62,9 @@ I installed the scout over my Unit 1 skill, rewrote my fit profile, and built a 
 
 I added four upstream rules to my voice guide (Claude drafted them and I edited them and approved them) and installed the voice guard, but I put the hook in a project `settings.local.json` in my notes folder instead of `~/.claude/settings.json`, a deviation from INSTALL.md step 4 that leaves my global settings untouched and means the guard only fires when I start Claude Code from that folder. That fell short on claim day because the posting steps run from the Unit 6 materials folder, so I copied the hook there, kept it out of git with `.git/info/exclude`, and re-ran the wiring test; my guard log shows that stop and then a pass on my claim and on my repro note before each one posted (Oct 25), though anything I post from the browser or a plain terminal still skips it. For repo memory I ran one scoped orientation over `plugins/module_utils/` and its unit tests (five read-only tool calls), and Claude distilled it, my contributor-guide notes, and a unit-test command I ran myself (1025 passed) into a 37-line `CLAUDE.local.md` that stays out of git. My CodePath credits ran out on Oct 25, so the guard checks, the orientation run, and my repro-check grades that day ran on my personal Claude account.
 
-**Unit 7: [one line on the tool work]**
+**Unit 7: Installed the ship-gate by hand, wrote a two-check manifest, and shipped PR #510 through it**
 
-[2-4 sentences: the ship-gate and your gate manifest. What it produced
-on your real branch, what fought you, what changed because of it.]
+I installed the ship-gate from INSTALL.md's manual fallback instead of install.py, because the script always edits my global Claude Code settings, so both hooks (voice guard, then ship-gate) live in my hashi_vault clone's project settings. The first wiring test only got one stop: on macOS's built-in Python 3.9, check_gate.py crashes as it loads (it uses `str | None` type hints) and Claude Code treats that exit code as non-blocking, so a real `gh pr create` would have gone out ungated until I pointed the hook and the manual doorway at my venv's Python 3.12 and re-ran the test. My manifest gates on the module_utils unit tests and the sanity tests, mined from the repo's CI file and contributor guide, with dated exclusions for the full unit suite (three lookup tests already fail on main), the integration tests (they need Docker) and shellcheck (not installed). The gate passed my branch twice, once before and once after I fixed a leftover template fence its voice note flagged, and I opened PR #510 through it.
 
 **Unit 8: [one line on the tool work]**
 
@@ -247,27 +246,22 @@ built, decisions you made when you made them, wrong turns included.]
 
 ## Pull Request
 
-**PR Link:** [GitHub PR URL when opened]
+**PR Link:** https://github.com/ansible-collections/community.hashi_vault/pull/510
 
-**PR Description:** [what the PR says; much of the content above
-adapts into it]
+**PR Description:** Opened 2026-11-01 as "cert auth - raise a clear error when certificate validation is off", from `landonkunz-coder:fix/456-cert-auth-validate-certs-error` to `main`: one commit (`17fbf53`, with `Fixes #456` and an `Assisted-by:` trailer), 3 files, +30 −1. The repo has no PR template of its own, but the org-level one in `ansible-collections/.github` applies and recent PRs use it, so the description follows it. It opens with one line saying this is my first contribution and that I used Claude to help plan the fix and draft the description, and that I read the change and ran every command myself. SUMMARY says it fixes #456, explains the cause (with `validate_certs: false` the connection options drop `ca_cert` and hvac refuses cert login without certificate checking), describes the change (catch hvac's `CertificateAuthError` in `HashiVaultAuthMethodCert.authenticate()` and raise `HashiVaultValueError` with a clear message), and offers to switch to using `ca_cert` instead if the maintainers prefer. ISSUE TYPE is Bugfix; COMPONENT NAME is the cert auth method. ADDITIONAL INFORMATION pastes the before and after output of the issue's task, the `validate_certs: true` control, the new unit test going from `1 failed, 14 passed` to `15 passed`, the two checks I ran with `ansible-test --venv` (`1455 passed`, sanity exit 0), and what I didn't run: integration tests (no Docker) and the three lookup tests that already fail on main.
 
 **Maintainer Feedback:**
 
-- [Date]: [feedback received, or "none yet"; silence is a normal
-  state and costs you nothing]
-- [Date]: [how you addressed it]
+- 2026-11-01: none yet. The only comment is SonarCloud's bot ("Quality Gate passed", 0 new issues), and the docs build checks passed. No maintainer has replied to my plan comment on #456 either.
 
-**Status:** [Awaiting review / Iterating / Merged / Closed. The
-status is a fact you record, never a grade: the PR is graded as
-opened.]
+**Status:** Awaiting review.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: the ship-gate, a hook on `gh pr create` that runs my manifest's checks and then my own pr-precheck on the branch. I ran it by hand from the clone (`~/ai301-hashi-vault/.venv/bin/python ~/.claude/ship-gate/check_gate.py --branch --title ... --body-file pr_draft.md`) until it passed, then opened the PR through Claude Code so the voice guard and the gate both checked it at the door.
+- What it produced: PASS. Both manifest checks passed (module_utils units in 7s, sanity in 24s) and my pr-precheck accepted 5 of 5: `scope-faithful` (the diff is exactly the plan's In list), `description-true`, `tested` (the repro re-run shows the new message), `clean-diff` and `template-met`. Its one voice note was a leftover "paste below" label on a code fence from the template; I fixed it and the second run passed too. When I opened the PR through Claude Code, the gate log shows the door honoring that manual pass ("PASS (honored the manual pass at 2026-11-01 19:29)") and the voice guard passing the same command.
+- Difficulties: install.py would have edited my global settings, so I installed by hand. On Python 3.9 the gate crashed silently and would have let a PR through. The full unit suite is red on main, so I had to scope the must-pass row and record an exclusion. After upstream merged #507, my local `main` was stale, so the gate would have compared my branch against the old base and counted #507's changes as mine. `template-met` passed while saying the repo "states no template", which is wrong: the org template applies (my description followed it anyway).
+- What changed: the hook and manual doorway now run on my venv's Python 3.12; the manifest gates on the module_utils subset with three dated exclusions; I rebased onto `2a0b75c`, moved my local `main` to `upstream/main` and re-ran every check; I fixed the fence and re-ran the gate before shipping. Next I'd patch my pr-precheck evidence guide to check `<org>/.github` for an org-level PR template, the same gap my scout and repro-check had with the contributor guide.
 
 ---
 
